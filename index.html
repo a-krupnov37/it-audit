@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1B4932">
+<title>IT Аудит</title>
+<style>
+:root{--g:#1B4932;--g2:#2D6A4F;--g3:#52B788;--gl:#D8F3DC;--ok:#2E7D32;--ok-bg:#E8F5E9;--rp:#E65100;--rp-bg:#FFF3E0;--re:#B71C1C;--re-bg:#FFEBEE;--na:#6C757D;--na-bg:#F0F0F0;--bg:#F5F5F5;--card:#FFF;--border:#E0E0E0;--text:#1A1A2E;--muted:#6C757D;--radius:10px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent;padding-bottom:80px;}
+.hdr{background:var(--g);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.hdr-back{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;display:none;}
+.hdr-back.show{display:block;}
+.hdr-back:active{background:rgba(255,255,255,.15);}
+.hdr-title{font-size:15px;font-weight:700;flex:1;}
+.hdr-sub{font-size:11px;opacity:.7;margin-top:1px;}
+.hdr-badge{background:var(--g3);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.progress{height:3px;background:rgba(255,255,255,.2);position:relative;}
+.progress-fill{height:100%;background:var(--g3);transition:width .3s;width:0;}
+.view{display:none;padding:16px;}
+.view.active{display:block;}
+.rest-search{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:var(--radius);font-size:15px;outline:none;margin-bottom:12px;background:#fff;}
+.rest-search:focus{border-color:var(--g3);}
+.rest-list{display:flex;flex-direction:column;gap:6px;}
+.rest-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:14px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .15s;}
+.rest-btn:active{border-color:var(--g);background:var(--gl);}
+.rest-btn .city{font-size:11px;color:var(--muted);display:block;margin-top:2px;}
+.rest-btn .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.rest-btn .has-data{background:var(--g3);}
+.rest-btn .no-data{background:var(--border);}
+.info-form{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;border:1px solid var(--border);}
+.info-form label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px;margin-top:12px;}
+.info-form label:first-child{margin-top:0;}
+.info-form input{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-size:15px;outline:none;}
+.info-form input:focus{border-color:var(--g3);}
+.zone{background:var(--card);border-radius:var(--radius);margin-bottom:10px;border:1px solid var(--border);overflow:hidden;}
+.zone-hdr{padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-user-select:none;user-select:none;}
+.zone-hdr:active{background:var(--gl);}
+.zone-name{font-size:13px;font-weight:700;flex:1;}
+.zone-count{font-size:11px;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:10px;}
+.zone-arrow{color:var(--muted);font-size:12px;transition:transform .2s;}
+.zone.open .zone-arrow{transform:rotate(90deg);}
+.zone-body{display:none;border-top:1px solid var(--border);}
+.zone.open .zone-body{display:block;}
+.zone-progress{height:3px;background:var(--bg);margin:0 16px;}
+.zone-progress-fill{height:100%;background:var(--g3);transition:width .3s;border-radius:2px;}
+.eq{padding:12px 16px;border-bottom:1px solid #f0f0f0;}
+.eq:last-child{border-bottom:none;}
+.eq-name{font-size:13px;font-weight:600;margin-bottom:8px;}
+.eq-serial{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;margin-bottom:8px;background:#FAFAFA;}
+.eq-serial:focus{border-color:var(--g3);background:#fff;}
+.eq-serial::placeholder{color:#bbb;}
+.eq-statuses{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.eq-st{flex:1;min-width:0;padding:8px 4px;border-radius:6px;border:2px solid var(--border);background:#fff;font-size:11px;font-weight:600;text-align:center;cursor:pointer;transition:all .15s;color:var(--muted);}
+.eq-st:active{transform:scale(.95);}
+.eq-st.s-ok.on{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);}
+.eq-st.s-rp.on{background:var(--rp-bg);border-color:var(--rp);color:var(--rp);}
+.eq-st.s-re.on{background:var(--re-bg);border-color:var(--re);color:var(--re);}
+.eq-st.s-na.on{background:var(--na-bg);border-color:var(--na);color:var(--na);}
+.eq-note{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;outline:none;color:var(--muted);background:#FAFAFA;}
+.eq-note:focus{border-color:var(--g3);background:#fff;}
+.eq-note::placeholder{color:#ccc;}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:10px;z-index:100;}
+.bottom.hidden{display:none;}
+.btn{flex:1;padding:12px;border-radius:var(--radius);font-size:14px;font-weight:700;border:none;cursor:pointer;text-align:center;}
+.btn-primary{background:var(--g);color:#fff;}
+.btn-primary:active{background:var(--g2);}
+.btn-outline{background:#fff;color:var(--g);border:2px solid var(--g);}
+.btn-outline:active{background:var(--gl);}
+.btn-danger{background:var(--re);color:#fff;}
+.btn-danger:active{background:#8B0000;}
+.sum-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--border);}
+.sum-title{font-size:14px;font-weight:700;margin-bottom:8px;}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sum-stat{padding:10px;border-radius:8px;text-align:center;}
+.sum-stat .n{font-size:24px;font-weight:700;line-height:1;}
+.sum-stat .l{font-size:10px;margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+.s-ok-card{background:var(--ok-bg);color:var(--ok);}
+.s-rp-card{background:var(--rp-bg);color:var(--rp);}
+.s-re-card{background:var(--re-bg);color:var(--re);}
+.s-na-card{background:var(--na-bg);color:var(--na);}
+.sum-list{margin-top:10px;}
+.sum-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}
+.sum-item:last-child{border-bottom:none;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <button class="hdr-back" id="backBtn" onclick="goBack()">&#8592;</button>
+  <div style="flex:1">
+    <div class="hdr-title" id="hdrTitle">IT Аудит</div>
+    <div class="hdr-sub" id="hdrSub">Выбери ресторан</div>
+  </div>
+  <div class="hdr-badge" id="hdrBadge" style="display:none">0%</div>
+</div>
+<div class="progress" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
+<div class="view active" id="viewSelect">
+  <input type="text" class="rest-search" id="restSearch" placeholder="Поиск ресторана..." oninput="filterRests()">
+  <div class="rest-list" id="restList"></div>
+</div>
+<div class="view" id="viewAudit">
+  <div class="info-form" id="infoForm">
+    <label>ФИО инженера</label>
+    <input type="text" id="inputEngineer" placeholder="Фамилия Имя" oninput="saveInfo()">
+    <label>Дата проверки</label>
+    <input type="date" id="inputDate" oninput="saveInfo()">
+  </div>
+  <div id="zonesContainer"></div>
+</div>
+<div class="view" id="viewSummary"><div id="summaryContent"></div></div>
+<div class="bottom hidden" id="bottomBar">
+  <button class="btn btn-outline" id="btnSummary" onclick="showSummary()">Итоги</button>
+  <button class="btn btn-primary" id="btnExport" onclick="exportCSV()">Экспорт CSV</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const RESTAURANTS=[
+['Астана','Кабанбай батыра','1001'],['Алматы','Алатау','2001'],
+['Алматы','Мамыр','2004'],['Алматы','Мега Парк','2002'],
+['Алматы','Мега Алматы','2003'],['Астана','Мега Силк Вей','1002'],
+['Астана','Керуен','1004'],['Астана','САБ','1003'],
+['Костанай','Абай','10001'],['Алматы','Байконур','2007'],
+['Алматы','Бухар Жырау','2008'],['Алматы','Максима','2005'],
+['Актобе','ППП','4001'],['Алматы','Аксай','2011'],
+['Алматы','Динамо','2012'],['Алматы','Атакент','2010'],
+['Астана','Кенесары','1005'],['Алматы','АДК','2009'],
+['Алматы','Апорт','2013'],['Караганда','45 Квартал','9001'],
+['Астана','Евразия','1006'],['Атырау','Сатпаева','6001'],
+['Алматы','Парк Сейфуллина','2014'],['Астана','Трасса М36','1007'],
+['Астана','Иманова','1008'],['Алматы','Достык плаза','2015'],
+['Алматы','Медеу парк','2016'],
+];
+
+const ZONES=[
+['КУХНЯ / MFY',[
+  'KDS монитор MFY 1','KDS монитор MFY 2',
+  'Монитор дублирующий MFY 1','Монитор дублирующий MFY 2',
+  'Гриль-принтер MFY 1','Гриль-принтер MFY 2',
+  'Пульт сброса MFY 1','Пульт сброса MFY 2']],
+['КУХНЯ / НАПИТКИ И ДЕСЕРТЫ',[
+  'KDS монитор напитков','Пульт сброса заказов']],
+['КУХНЯ / ЗОНА СБОРКИ (OAT)',[
+  'KDS монитор OAT 1','KDS монитор OAT 2',
+  'Гриль-принтер OAT 1','Гриль-принтер OAT 2',
+  'Пульт сброса OAT 1','Пульт сброса OAT 2']],
+['КУХНЯ / ЗОНА ВЫДАЧИ',[
+  'KDS монитор Presenter','KDS монитор mini ORB','ORB монитор']],
+['КУХНЯ / ePRODUCTION',[
+  'KDS монитор UHC','KDS монитор FRI','Пульт сброса UHC']],
+['КУХНЯ / BEST BURGER',[
+  'KDS монитор BB 1','KDS монитор BB 2',
+  'Пульт сброса BB 1','Пульт сброса BB 2']],
+['ПРИЛАВОК / ЛИНИЯ КАСС',[
+  'POS 05 — Терминал','POS 05 — Дисплей покупателя','POS 05 — Принтер ККМ',
+  'POS 05 — Банк. терминал Pax','POS 05 — Банк. терминал Kaspi','POS 05 — Денежный ящик',
+  'POS 06 — Терминал','POS 06 — Дисплей покупателя','POS 06 — Принтер ККМ',
+  'POS 06 — Банк. терминал Pax','POS 06 — Банк. терминал Kaspi','POS 06 — Денежный ящик',
+  'POS 07 — Терминал','POS 07 — Дисплей покупателя','POS 07 — Принтер ККМ',
+  'POS 07 — Банк. терминал Pax','POS 07 — Денежный ящик']],
+['DELIVERY',[
+  'POS 10 — Терминал',
+  'KDS монитор DLV_OAT','KDS монитор DLV_pres',
+  'Пульт сброса DLV','Гриль-принтер DLV','Фискальный принтер DLV']],
+['CAFE',[
+  'POS 09 — Терминал','Дисплей покупателя Cafe',
+  'Фискальный принтер Cafe',
+  'Банк. терминал Pax Cafe','Банк. терминал Kaspi Cafe',
+  'Денежный ящик Cafe','Сканер ручной Honeywell Cafe',
+  'mini PC KDS Cafe','Монитор Cafe','Пульт сброса Cafe']],
+['DRIVE THRU',[
+  'POS 01 — Терминал','POS 01 — Фискальный принтер',
+  'POS 01 — Банк. терминал Pax','POS 01 — Банк. терминал Kaspi',
+  'POS 01 — Денежный ящик','POS 01 — Сканер ШК',
+  'POS 02 — Терминал','POS 03 — Терминал',
+  'KDS монитор DT','Монитор дублирующий DT','Пульт сброса DT']],
+['HME / COD',[
+  'Аудиобаза HME','CU 50',
+  'Монитор Dashboard','Монитор Leaderboard',
+  'Гарнитуры (перечислить SN)']],
+['КИОСКИ CSO',[
+  'CSO 11 — PC Box','CSO 11 — Принтер Datecs','CSO 11 — Банк. терминал',
+  'CSO 12 — PC Box','CSO 12 — Принтер Datecs','CSO 12 — Банк. терминал',
+  'CSO 13 — PC Box','CSO 13 — Принтер Datecs','CSO 13 — Банк. терминал',
+  'CSO 14 — PC Box','CSO 14 — Принтер Datecs','CSO 14 — Банк. терминал',
+  'CSO 15 — PC Box','CSO 15 — Принтер Datecs','CSO 15 — Банк. терминал',
+  'CSO 16 — PC Box','CSO 16 — Принтер Datecs','CSO 16 — Банк. терминал']],
+['СЕРВЕРНАЯ / IT',[
+  'Сервер 01','Сервер 02',
+  'Маршрутизатор Cisco/Mikrotik','Коммутатор Cisco/Mikrotik',
+  'Коммутатор L2 (1)','Коммутатор L2 (2)','Коммутатор L2 (3)',
+  'Коммутатор L2 (4)','Коммутатор L2 (5)',
+  'ИБП (UPS)','Точка доступа Wi-Fi']],
+['ОФИС / MONEY ROOM',[
+  'ПК / Wyse (1)','Монитор (1)',
+  'ПК / Wyse (2)','Монитор (2)',
+  'Ноутбук','МФУ / принтер']],
+['DMB / ПРИЛАВОК',[
+  'Дисплей Samsung (1)','Дисплей Samsung (2)',
+  'Дисплей Samsung (3)','Дисплей Samsung (4)']],
+['DMB / CAFE',[
+  'Дисплей Samsung Cafe (1)','Дисплей Samsung Cafe (2)',
+  'Дисплей Samsung Cafe (3)','Дисплей Samsung Cafe (4)']],
+['ПРОЧЕЕ',[
+  'Часы учёта рабочего времени','Планшет (Table Service)','Моноблок Crew Room']],
+];
+
+const STATUSES=[
+  {id:'ok',label:'Исправно',cls:'s-ok'},
+  {id:'rp',label:'Ремонт',cls:'s-rp'},
+  {id:'re',label:'Замена',cls:'s-re'},
+  {id:'na',label:'N/A',cls:'s-na'},
+];
+
+let currentRest=null;
+let auditData={};
+function restKey(r){return r[2];}
+function eqKey(zone,eq){return zone+'||'+eq;}
+function loadAll(){try{auditData=JSON.parse(localStorage.getItem('itaudit')||'{}');}catch(e){auditData={};}}
+function saveAll(){try{localStorage.setItem('itaudit',JSON.stringify(auditData));}catch(e){}}
+function getRestData(rk){if(!auditData[rk])auditData[rk]={engineer:'',date:'',items:{}};return auditData[rk];}
+function getItem(rk,ek){const rd=getRestData(rk);if(!rd.items[ek])rd.items[ek]={serial:'',status:'',note:''};return rd.items[ek];}
+
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goBack(){
+  if(document.getElementById('viewSummary').classList.contains('active')){showView('viewAudit');document.getElementById('bottomBar').classList.remove('hidden');updateHeader();return;}
+  currentRest=null;showView('viewSelect');
+  document.getElementById('backBtn').classList.remove('show');
+  document.getElementById('bottomBar').classList.add('hidden');
+  document.getElementById('progressBar').style.display='none';
+  document.getElementById('hdrTitle').textContent='IT Аудит';
+  document.getElementById('hdrSub').textContent='Выбери ресторан';
+  document.getElementById('hdrBadge').style.display='none';
+  renderRestList();
+}
+
+function renderRestList(){
+  const q=(document.getElementById('restSearch').value||'').toLowerCase();
+  const list=document.getElementById('restList');
+  list.innerHTML=RESTAURANTS.filter(r=>!q||(r[0]+r[1]+r[2]).toLowerCase().includes(q)).map(r=>{
+    const rk=restKey(r);const hasData=auditData[rk]&&Object.keys(auditData[rk].items||{}).length>0;
+    const filled=hasData?countFilled(rk):0;const total=countTotal();
+    return `<button class="rest-btn" onclick="selectRest('${rk}')">
+      <span class="dot ${hasData?'has-data':'no-data'}"></span>
+      <div style="flex:1"><strong>${r[1]}</strong><span class="city">${r[0]} (${r[2]})${hasData?' — '+filled+'/'+total:''}</span></div>
+      <span style="color:var(--muted);font-size:18px">›</span></button>`;
+  }).join('');
+}
+function filterRests(){renderRestList();}
+function countTotal(){let n=0;ZONES.forEach(z=>n+=z[1].length);return n;}
+function countFilled(rk){const rd=getRestData(rk);return Object.values(rd.items).filter(i=>i.status).length;}
+
+function selectRest(rk){
+  currentRest=rk;const r=RESTAURANTS.find(r=>restKey(r)===rk);
+  showView('viewAudit');
+  document.getElementById('backBtn').classList.add('show');
+  document.getElementById('bottomBar').classList.remove('hidden');
+  document.getElementById('progressBar').style.display='block';
+  updateHeader();
+  const rd=getRestData(rk);
+  document.getElementById('inputEngineer').value=rd.engineer||'';
+  document.getElementById('inputDate').value=rd.date||new Date().toISOString().slice(0,10);
+  if(!rd.date){rd.date=document.getElementById('inputDate').value;saveAll();}
+  renderZones();
+}
+
+function updateHeader(){
+  const r=RESTAURANTS.find(r=>restKey(r)===currentRest);
+  document.getElementById('hdrTitle').textContent=r?r[1]:'IT Аудит';
+  document.getElementById('hdrSub').textContent=r?r[0]+' ('+r[2]+')':'';
+  const filled=countFilled(currentRest);const total=countTotal();
+  const pct=total?Math.round(filled/total*100):0;
+  document.getElementById('hdrBadge').textContent=pct+'%';
+  document.getElementById('hdrBadge').style.display='';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+function saveInfo(){
+  if(!currentRest)return;const rd=getRestData(currentRest);
+  rd.engineer=document.getElementById('inputEngineer').value;
+  rd.date=document.getElementById('inputDate').value;saveAll();
+}
+
+function renderZones(){
+  const container=document.getElementById('zonesContainer');
+  container.innerHTML=ZONES.map((z,zi)=>{
+    const zoneName=z[0],items=z[1];
+    const filled=items.filter(eq=>getItem(currentRest,eqKey(zoneName,eq)).status).length;
+    const pct=items.length?Math.round(filled/items.length*100):0;
+    return `<div class="zone${filled>0?' open':''}" id="zone${zi}">
+      <div class="zone-hdr" onclick="toggleZone(${zi})">
+        <div class="zone-name">${zoneName}</div>
+        <div class="zone-count">${filled}/${items.length}</div>
+        <div class="zone-arrow">▶</div>
+      </div>
+      <div class="zone-progress"><div class="zone-progress-fill" style="width:${pct}%"></div></div>
+      <div class="zone-body">${items.map(eq=>renderEquipment(zoneName,eq)).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderEquipment(zone,eq){
+  const ek=eqKey(zone,eq);const item=getItem(currentRest,ek);
+  const ekSafe=ek.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<div class="eq">
+    <div class="eq-name">${eq}</div>
+    <input type="text" class="eq-serial" placeholder="Серийник / модель" value="${esc(item.serial)}" oninput="setField('${ekSafe}','serial',this.value)">
+    <div class="eq-statuses">
+      ${STATUSES.map(s=>`<div class="eq-st ${s.cls}${item.status===s.id?' on':''}" onclick="setStatus('${ekSafe}','${s.id}',this)">${s.label}</div>`).join('')}
+    </div>
+    <input type="text" class="eq-note" placeholder="Примечание (необязательно)" value="${esc(item.note)}" oninput="setField('${ekSafe}','note',this.value)">
+  </div>`;
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function toggleZone(idx){document.getElementById('zone'+idx).classList.toggle('open');}
+
+function setStatus(ek,statusId,el){
+  const item=getItem(currentRest,ek);
+  item.status=item.status===statusId?'':statusId;saveAll();
+  const parent=el.parentElement;
+  parent.querySelectorAll('.eq-st').forEach(b=>b.classList.remove('on'));
+  if(item.status)el.classList.add('on');
+  updateHeader();updateZoneCount(ek);toast('Сохранено');
+}
+
+function setField(ek,field,value){const item=getItem(currentRest,ek);item[field]=value;saveAll();}
+
+function updateZoneCount(ek){
+  const zone=ek.split('||')[0];const zi=ZONES.findIndex(z=>z[0]===zone);
+  if(zi<0)return;const items=ZONES[zi][1];
+  const filled=items.filter(eq=>getItem(currentRest,eqKey(zone,eq)).status).length;
+  const el=document.getElementById('zone'+zi);
+  if(el){el.querySelector('.zone-count').textContent=filled+'/'+items.length;
+  const pct=items.length?Math.round(filled/items.length*100):0;
+  el.querySelector('.zone-progress-fill').style.width=pct+'%';}
+}
+
+function showSummary(){
+  showView('viewSummary');const rd=getRestData(currentRest);
+  const r=RESTAURANTS.find(r=>restKey(r)===currentRest);
+  let ok=0,rp=0,re=0,na=0,empty=0;const problems=[];
+  ZONES.forEach(([zone,items])=>{items.forEach(eq=>{
+    const it=getItem(currentRest,eqKey(zone,eq));
+    if(it.status==='ok')ok++;
+    else if(it.status==='rp'){rp++;problems.push({zone,eq,status:'Ремонт',serial:it.serial,note:it.note});}
+    else if(it.status==='re'){re++;problems.push({zone,eq,status:'Замена',serial:it.serial,note:it.note});}
+    else if(it.status==='na')na++;
+    else empty++;
+  });});
+  const total=ok+rp+re+na+empty;
+  document.getElementById('summaryContent').innerHTML=`
+    <div class="sum-card">
+      <div class="sum-title">${r[0]} / ${r[1]} (${r[2]})</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Инженер: ${rd.engineer||'—'} · Дата: ${rd.date||'—'}</div>
+      <div class="sum-grid">
+        <div class="sum-stat s-ok-card"><div class="n">${ok}</div><div class="l">Исправно</div></div>
+        <div class="sum-stat s-rp-card"><div class="n">${rp}</div><div class="l">Ремонт</div></div>
+        <div class="sum-stat s-re-card"><div class="n">${re}</div><div class="l">Замена</div></div>
+        <div class="sum-stat s-na-card"><div class="n">${na}</div><div class="l">N/A</div></div>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--muted)">Не заполнено: ${empty} из ${total}</div>
+    </div>
+    ${problems.length?`<div class="sum-card">
+      <div class="sum-title" style="color:var(--re)">Проблемное оборудование</div>
+      <div class="sum-list">${problems.map(p=>`<div class="sum-item">
+        <div><strong>${p.eq}</strong><br><span style="font-size:11px;color:var(--muted)">${p.zone}${p.note?' · '+p.note:''}</span></div>
+        <div style="font-weight:700;color:${p.status==='Замена'?'var(--re)':'var(--rp)'};white-space:nowrap">${p.status}</div>
+      </div>`).join('')}</div></div>`:''}
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-outline" onclick="goBack()">← Назад</button>
+      <button class="btn btn-primary" onclick="exportCSV()">Экспорт CSV</button>
+    </div>
+    <button class="btn btn-danger" style="width:100%;margin-top:10px" onclick="clearRest()">Очистить данные ресторана</button>`;
+}
+
+function exportCSV(){
+  const rd=getRestData(currentRest);const r=RESTAURANTS.find(r=>restKey(r)===currentRest);
+  const rName=r[0]+' '+r[1]+' ('+r[2]+')';
+  const sl={ok:'Исправно',rp:'Требуется ремонт',re:'Требуется замена',na:'N/A'};
+  let csv='\uFEFF'+'Ресторан;Зона;Оборудование;Серийник / модель;Статус;Примечание;Инженер;Дата\n';
+  ZONES.forEach(([zone,items])=>{items.forEach(eq=>{
+    const it=getItem(currentRest,eqKey(zone,eq));
+    const row=[rName,zone,eq,(it.serial||'').replace(/;/g,','),(sl[it.status]||''),(it.note||'').replace(/;/g,','),rd.engineer||'',rd.date||''];
+    csv+=row.map(v=>'"'+v.replace(/"/g,'""')+'"').join(';')+'\n';
+  });});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`audit_${r[2]}_${rd.date||'nodate'}.csv`;a.click();
+  URL.revokeObjectURL(url);toast('CSV скачан');
+}
+
+function clearRest(){
+  if(!confirm('Удалить все данные по этому ресторану?'))return;
+  delete auditData[currentRest];saveAll();goBack();toast('Данные удалены');
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),1500);}
+
+loadAll();renderRestList();
+</script>
+</body>
+</html>
